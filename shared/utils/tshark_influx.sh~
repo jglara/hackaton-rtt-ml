@@ -1,0 +1,6 @@
+#!/bin/bash
+
+IFAZ=r3-eth1
+
+tshark -i $IFAZ -Tfields -e ip.src -e tcp.len -e tcp.analysis.ack_rtt -e tcp.analysis.bytes_in_flight -Eseparator=, -l | while read line; do
+    curl -i -XPOST 'http://localhost:8086/write?db=statsdemo' --data-binary "client_dl_bytes value=$line"; done

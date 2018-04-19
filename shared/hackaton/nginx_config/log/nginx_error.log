@@ -1,0 +1,14 @@
+2018/02/06 12:35:12 [error] 875#875: *1 open() "/usr/share/nginx/html/100K.img" failed (2: No such file or directory), client: 192.168.1.10, server: , request: "GET /100K.img HTTP/1.1", host: "192.168.5.51"
+2018/02/06 12:35:30 [error] 875#875: *2 open() "/vagrant_data/http/http/100K.img" failed (2: No such file or directory), client: 192.168.1.10, server: , request: "GET /http/100K.img HTTP/1.1", host: "192.168.5.51"
+2018/03/23 10:27:04 [error] 6034#6034: *1 directory index of "/vagrant_data/http/" is forbidden, client: 192.168.1.10, server: , request: "POST / HTTP/1.1", host: "192.168.5.51"
+2018/03/23 10:40:11 [crit] 21371#21371: *2 mkdir() "/vagrand_data/http" failed (2: No such file or directory), client: 192.168.1.10, server: , request: "PUT /upload/test1 HTTP/1.1", host: "192.168.5.51"
+2018/03/23 10:40:18 [crit] 21371#21371: *3 mkdir() "/vagrand_data/http" failed (2: No such file or directory), client: 192.168.1.10, server: , request: "PUT /upload HTTP/1.1", host: "192.168.5.51"
+2018/03/23 10:40:46 [crit] 23430#23430: *2 open() "/vagrant_data/http/upload/upload.0000000002" failed (13: Permission denied), client: 192.168.1.10, server: , request: "PUT /upload HTTP/1.1", host: "192.168.5.51"
+2018/03/23 10:42:12 [crit] 26845#26845: *1 open() "/vagrant_data/http/upload/upload.0000000002" failed (13: Permission denied), client: 192.168.1.10, server: , request: "PUT /upload HTTP/1.1", host: "192.168.5.51"
+2018/03/23 11:17:00 [error] 21798#21798: *1 client intended to send too large body: 10485760 bytes, client: 192.168.5.30, server: , request: "PUT /upload HTTP/1.1", host: "192.168.2.30"
+2018/04/04 06:25:02 [emerg] 15146#15146: open() "/vagrant_data/TCPOPTS/nginx_config/log/nginx_error.log" failed (13: Permission denied)
+2018/04/04 06:25:02 [emerg] 15143#15143: open() "/vagrant_data/TCPOPTS/nginx_config/log/nginx_error.log" failed (13: Permission denied)
+2018/04/04 06:25:02 [emerg] 15142#15142: open() "/vagrant_data/TCPOPTS/nginx_config/log/nginx_error.log" failed (13: Permission denied)
+2018/04/04 06:25:02 [emerg] 15145#15145: open() "/vagrant_data/TCPOPTS/nginx_config/log/nginx_error.log" failed (13: Permission denied)
+2018/04/04 06:25:02 [emerg] 15144#15144: open() "/vagrant_data/TCPOPTS/nginx_config/log/nginx_error.log" failed (13: Permission denied)
+2018/04/19 13:51:54 [error] 21302#21302: *1 open() "/home/vagrant/shared/http/http/1M.img" failed (2: No such file or directory), client: 192.168.1.10, server: , request: "GET /http/1M.img HTTP/1.1", host: "192.168.5.51"
