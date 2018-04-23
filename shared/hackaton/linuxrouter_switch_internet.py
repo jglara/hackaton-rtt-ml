@@ -51,7 +51,7 @@ class MyForwardingRouter( Node ):
 
         # Enable forwarding on the router
         self.cmd('sysctl net.ipv4.ip_forward=1' )
-        self.cmd('python /home/vagrant/shared/hackaton/scapy_proxy.py&')
+        self.cmd('python2.7 /home/vagrant/shared/hackaton/scapy_proxy.py --dir={0} --alpha={1}&'.format(args.dir, args.alpha))
 
     def terminate( self ):
         self.cmd( 'sysctl net.ipv4.ip_forward=0' )
@@ -213,17 +213,17 @@ def run():
         CLI( net )
     else:
         h1.cmd('sleep 1')
+        test = { 1 : [1, "uris_1.txt"],
+                 2 : [2, "uris_2.txt"],
+                 3 : [5, "uris_3.txt"],
+                 4 : [10, "uris_4.txt"]}
 
+        test_args = test[args.test]
+        h1.sendCmd('aria2c -d output -x{0} -j{0}  -k1M --on-download-complete /home/vagrant/shared/hackaton/rm_file.sh --file-allocation=prealloc -i {1}'.format(*test_args))
 
-        if args.get:
-            h1.cmd('sleep 1')
-            for file in args.get:
-                #h1.sendCmd('wget --delete-after {0}'.format(file))
-                h1.sendCmd('aria2c -d output -x5  -k1M  http://{0}/http/{1}'.format(net.getNodeByName('s1').IP(), file, args.dir))
-                #h1.sendCmd('mget --delete-after {0}'.format(file))
-                print "waiting for the sender to finish"
-                h1.waitOutput()
-        sleep(1)
+        print("waiting for the sender to finish")
+        h1.waitOutput()
+        print("Test finished")
 
     net.stop()
 
@@ -269,18 +269,29 @@ if __name__ == '__main__':
     parser.add_argument('--dir', '-d',
                         help="Directory to store outputs",
                         default="results")
-    
+
+
+    parser.add_argument('--alpha', '-a',
+                        help="Alpha for RTT estimator",
+                        default=0.5)
+
+    parser.add_argument('--test', '-t',
+                        help="Test to run",
+                        type=int,
+                        default=1)
+
+
     parser.add_argument('--cli', '-c',
                         action='store_true',
                         help='Run CLI for topology debugging purposes')
 
-    parser.add_argument('--get', nargs='*', help="HTTP get file")
     
     # Expt parameters
     args = parser.parse_args()
 
+    print("running test {0} with alpha {1}".format(args.test, args.alpha))
 
-    #os.system("mkdir /tmp/{0} ; mkdir ./{0} ; rm /tmp/{0}/* ; rm ./{0}/*".format(args.dir))
+    os.system("mkdir ./{0} ; rm ./{0}/*".format(args.dir))
     run()
     #os.system("mv /tmp/{0}/* ./{0} ; chmod o=rw ./{0}/*".format(args.dir))
 

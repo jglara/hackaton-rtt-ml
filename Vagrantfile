@@ -8,6 +8,7 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "forwarded_port", guest: 8888, host: 8899, auto_correct: true
   config.vm.synced_folder "shared", "/home/vagrant/shared"
 
   # Provider-specific configuration so you can fine-tune various

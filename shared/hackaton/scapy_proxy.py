@@ -52,10 +52,8 @@ class TCPHalf:
         self.key = key
         self.expected_seq = 0
         self.ts = 0
-        self.rtt_estimator = RTTEstimator(0.5)
-        self.rtt_mean_error = 0
-        self.csvfile = open("{0}/{1}.csv".format(Args.dir, self.key), "wb")
-        self.csv = csv.writer(self.csvfile, delimiter=',')
+        self.rtt_estimator = RTTEstimator(Args.alpha)
+        self.rtts = []
 
     @staticmethod
     def createKeyLocal(ip,tcp):
@@ -76,15 +74,17 @@ class TCPHalf:
 #        print("ack={0} \n".format(tcp.ack))
 
         if tcp.flags & 0x01: # FIN
-            self.csvfile.close()
+            if len(self.rtts) > 3:
+                csvfile = open("{0}/{1}.csv".format(Args.dir, self.key), "wb")
+                csv_writer = csv.writer(csvfile, delimiter=',')
+                for l in self.rtts:
+                    csv_writer.writerow(l)
+                csvfile.close()
 
         if (self.expected_seq != 0) and (tcp.ack >= self.expected_seq):
             rtt = time.time() - self.ts
             estimated_rtt = self.rtt_estimator.estimatedRTT
-#            rtt_error = abs(estimated_rtt - rtt)
-#            self.csv.writerow([rtt, estimated_rtt, rtt_error])
-#            print("{0}: RTT = {1}. Estimated RTT = {2}, Error = {3}\n".format(self.key, rtt, estimated_rtt, rtt_error))
-#            self.csv.writerow([rtt, estimated_rtt])
+            self.rtts.append([rtt, estimated_rtt])
 
             self.expected_seq = 0
             self.ts = 0
@@ -147,6 +147,11 @@ if __name__ == "__main__":
     parser.add_argument('--dir', '-d',
                         help="Directory to store outputs",
                         default="results")
+
+    parser.add_argument('--alpha', '-a',
+                        help="Alpha parameter for RTT estimator",
+                        type=float,
+                        default=0.5)
 
     Args = parser.parse_args()
 

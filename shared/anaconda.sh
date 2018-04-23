@@ -1,5 +1,6 @@
 # install conda
-anacaconda=Anaconda3-5.1.0-Linux-x86_64.sh
+#anaconda=Anaconda3-5.1.0-Linux-x86_64.sh
+anaconda=Miniconda2-latest-Linux-x86_64.sh
 cd /vagrant
 if [[ ! -f $anaconda ]]; then
 
@@ -9,6 +10,7 @@ chmod +x $anaconda
 sudo bash ./$anaconda -b -p /opt/anaconda
 
 cat >> /home/vagrant/.bashrc <<EOF
-# add for anaconda install
+# add for anaconda installo
 PATH=/opt/anaconda/bin:\$PATH
 EOF
+
