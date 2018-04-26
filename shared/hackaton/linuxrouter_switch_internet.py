@@ -219,7 +219,7 @@ def run():
                  4 : [10, "uris_4.txt"]}
 
         test_args = test[args.test]
-        h1.sendCmd('aria2c -d output -x{0} -j{0}  -k1M --on-download-complete /home/vagrant/shared/hackaton/rm_file.sh --file-allocation=prealloc -i {1}'.format(*test_args))
+        h1.sendCmd('aria2c -d output -x{0} -j{0}  -k1M --on-download-complete /home/vagrant/shared/hackaton/rm_file.sh --file-allocation=prealloc -i uris.txt'.format(*test_args))
 
         print("waiting for the sender to finish")
         h1.waitOutput()

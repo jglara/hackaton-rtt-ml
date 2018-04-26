@@ -1,0 +1,28 @@
+mkdir: cannot create directory ‘./test/results_4’: No such file or directory
+rm: cannot remove './test/results_4/*': No such file or directory
+*** Creating network
+*** Adding controller
+*** Adding hosts:
+h1 h2 nat0 r1 r2 s1 
+*** Adding switches:
+sw1 sw2 sw3 sw5 
+*** Adding links:
+(50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw1, h1) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw1, r1) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw2, h2) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw2, r2) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw3, r1) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw3, s1) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw5, nat0) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (sw5, r2) 
+*** Configuring hosts
+h1 h2 nat0 r1 r2 s1 Starting server
+*** Starting controller
+c0 
+*** Starting 4 switches
+sw1 sw2 sw3 sw5 ...(50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) (50.00Mbit 1ms delay 0 jitter 0.00000% loss) 
+*** nat0 : ('ip route add 192.168.2.0/24 via 192.168.5.30 dev nat0-eth1',)
+*** s1 : ('ip route add 192.168.1.0/24 via 192.168.5.20 dev s1-eth1',)
+*** Routing Table on Router
+*** Stopping 1 controllers
+c0 
+*** Stopping 8 links
+........
+*** Stopping 4 switches
+sw1 sw2 sw3 sw5 
+*** Stopping 6 hosts
+h1 h2 nat0 r1 r2 s1 
+*** Done

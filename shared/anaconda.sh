@@ -7,7 +7,7 @@ if [[ ! -f $anaconda ]]; then
     wget --quiet https://repo.continuum.io/archive/$anaconda
 fi
 chmod +x $anaconda
-sudo bash ./$anaconda -b -p /opt/anaconda
+bash ./$anaconda -b -p /opt/anaconda
 
 cat >> /home/vagrant/.bashrc <<EOF
 # add for anaconda installo
