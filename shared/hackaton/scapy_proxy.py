@@ -28,6 +28,44 @@ os.system(iptablesr)
 #print("Set ipv4 forward settings : ")
 #os.system("sysctl net.ipv4.ip_forward=1")
 
+
+class RTTMLEstimator:
+    def __init__(self, numExperts, rttmin, rttmax, learningRate, shareRate):
+        self.X = [rttmin + rttmax * 2 ** ((i-numExperts )/4) for i in range(0,numExperts)]
+        self.W = [1.0/len(self.X) for i in range(0,len(self.X))]
+        self.learningRate = learningRate
+        self.shareRate = shareRate
+
+    def makePrediction(self):
+        return sum([x*y for (x,y) in zip(self.X, self.W)])/sum(self.W)
+
+
+    @staticmethod
+    def computeLoss(x,y):
+        if x > y:
+            return (x-y) ** 2
+        else:
+            return 2 * y
+
+    def updateWeights(self,y):
+        # print([w * math.exp(-self.learningRate * RTTMLEstimator.computeLoss(x,y)) for w,x in zip(self.W, self.X)])
+        self.W = [w * math.exp(-self.learningRate * RTTMLEstimator.computeLoss(x,y)) for w,x in zip(self.W, self.X)]
+
+    def shareWeights(self):
+        pool_avg = sum ([ self.shareRate * w for w in self.W]) / len(self.W)
+        #print(pool_avg)
+        #print([(w * (1-self.shareRate)) + pool_avg for w in self.W])
+        self.W = [(w * (1-self.shareRate)) + pool_avg for w in self.W]
+
+    @property
+    def estimatedRTT(self):
+        return self.makePrediction()
+
+    def update(self, sampleRTT):
+        self.updateWeights(sampleRTT)
+        self.shareWeights()
+
+
 class RTTEstimator:
     def __init__(self, alfa):
         self.alfa = alfa
@@ -37,7 +75,7 @@ class RTTEstimator:
     def estimatedRTT(self):
         return self.__estimatedRTT
 
-    def estimate(self, sampleRTT):
+    def update(self, sampleRTT):
         if (self.estimatedRTT == 0):
             self.estimatedRTT = sampleRTT
         else:
@@ -46,13 +84,13 @@ class RTTEstimator:
         return (self.estimatedRTT)
 
 class TCPHalf:
-    def __init__(self,key):
+    def __init__(self,key, estimator):
         global Args
 
         self.key = key
         self.expected_seq = 0
         self.ts = 0
-        self.rtt_estimator = RTTEstimator(Args.alpha)
+        self.rtt_estimator = estimator
         self.rtts = []
 
     @staticmethod
@@ -88,7 +126,7 @@ class TCPHalf:
 
             self.expected_seq = 0
             self.ts = 0
-            self.rtt_estimator.estimate(rtt)
+            self.rtt_estimator.update(rtt)
 
 
 
@@ -106,11 +144,17 @@ def callback(i,payload):
         keyLocal = TCPHalf.createKeyLocal(ip,tcp)
         keyRemote = TCPHalf.createKeyRemote(ip,tcp)
 
+        estimator = RTTEstimator(Args.alpha) if Args.estimator == "AVG" else RTTMLEstimator(rttmin=float(Args.rtt_min)/1000,
+                                                                                            rttmax=float(Args.rtt_max)/1000,
+                                                                                            numExperts=Args.experts,
+                                                                                            learningRate=Args.learning_rate,
+                                                                                            shareRate=Args.share_rate)
+
         if not keyLocal in Flows:
-            Flows[keyLocal] = TCPHalf(keyLocal)
+            Flows[keyLocal] = TCPHalf(keyLocal, estimator)
 
         if not keyRemote in Flows:
-            Flows[keyRemote] = TCPHalf(keyRemote)
+            Flows[keyRemote] = TCPHalf(keyRemote, estimator)
 
         if (len(tcp.payload)):
             Flows[keyLocal].send_seq(ip, tcp)
@@ -148,10 +192,39 @@ if __name__ == "__main__":
                         help="Directory to store outputs",
                         default="results")
 
+    parser.add_argument('--estimator', '-e',
+                        help="Estimator",
+                        default="AVG")
+
     parser.add_argument('--alpha', '-a',
                         help="Alpha parameter for RTT estimator",
                         type=float,
                         default=0.5)
+
+    parser.add_argument('--rtt_min', '-m',
+                        help="Alpha rtt min for RTT estimator",
+                        type=int,
+                        default=2)
+
+    parser.add_argument('--rtt_max', '-x',
+                        help="Alpha rtt max for RTT estimator",
+                        type=int,
+                        default=500)
+
+    parser.add_argument('--experts', '-p',
+                        help="num experts for RTT estimator",
+                        type=int,
+                        default=100)
+
+    parser.add_argument('--learning_rate', '-r',
+                        help="Learning rate",
+                        type=float,
+                        default=10)
+
+    parser.add_argument('--share_rate', '-s',
+                        help="Share rate",
+                        type=float,
+                        default=0.08)
 
     Args = parser.parse_args()
 
