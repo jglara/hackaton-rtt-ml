@@ -11,59 +11,21 @@ import os
 import argparse
 import time
 import csv
+from RTTMLEstimator import *
 
 # All packets that should be filtered :
 
 # If you want to use it as a reverse proxy for your machine
 #iptablesr = "iptables -A OUTPUT -j NFQUEUE"
 
-# If you want to use it for MITM :
-iptablesr = "iptables -A FORWARD -j NFQUEUE"
 
-print("Adding iptable rules :")
-print(iptablesr)
-os.system(iptablesr)
 
 # If you want to use it for MITM attacks, set ip_forward=1 :
 #print("Set ipv4 forward settings : ")
 #os.system("sysctl net.ipv4.ip_forward=1")
 
 
-class RTTMLEstimator:
-    def __init__(self, numExperts, rttmin, rttmax, learningRate, shareRate):
-        self.X = [rttmin + rttmax * 2 ** ((i-numExperts )/4) for i in range(0,numExperts)]
-        self.W = [1.0/len(self.X) for i in range(0,len(self.X))]
-        self.learningRate = learningRate
-        self.shareRate = shareRate
 
-    def makePrediction(self):
-        return sum([x*y for (x,y) in zip(self.X, self.W)])/sum(self.W)
-
-
-    @staticmethod
-    def computeLoss(x,y):
-        if x > y:
-            return (x-y) ** 2
-        else:
-            return 2 * y
-
-    def updateWeights(self,y):
-        # print([w * math.exp(-self.learningRate * RTTMLEstimator.computeLoss(x,y)) for w,x in zip(self.W, self.X)])
-        self.W = [w * math.exp(-self.learningRate * RTTMLEstimator.computeLoss(x,y)) for w,x in zip(self.W, self.X)]
-
-    def shareWeights(self):
-        pool_avg = sum ([ self.shareRate * w for w in self.W]) / len(self.W)
-        #print(pool_avg)
-        #print([(w * (1-self.shareRate)) + pool_avg for w in self.W])
-        self.W = [(w * (1-self.shareRate)) + pool_avg for w in self.W]
-
-    @property
-    def estimatedRTT(self):
-        return self.makePrediction()
-
-    def update(self, sampleRTT):
-        self.updateWeights(sampleRTT)
-        self.shareWeights()
 
 
 class RTTEstimator:
@@ -165,6 +127,14 @@ def callback(i,payload):
     return 1
 
 def main():
+    # If you want to use it for MITM :
+    iptablesr = "iptables -A FORWARD -j NFQUEUE"
+
+    print("Adding iptable rules :")
+    print(iptablesr)
+    os.system(iptablesr)
+
+
     # This is the intercept
     q = nfqueue.queue()
     q.open()
@@ -194,12 +164,12 @@ if __name__ == "__main__":
 
     parser.add_argument('--estimator', '-e',
                         help="Estimator",
-                        default="AVG")
+                        default="ML")
 
     parser.add_argument('--alpha', '-a',
                         help="Alpha parameter for RTT estimator",
                         type=float,
-                        default=0.5)
+                        default=0.2)
 
     parser.add_argument('--rtt_min', '-m',
                         help="Alpha rtt min for RTT estimator",
@@ -219,7 +189,7 @@ if __name__ == "__main__":
     parser.add_argument('--learning_rate', '-r',
                         help="Learning rate",
                         type=float,
-                        default=10)
+                        default=2)
 
     parser.add_argument('--share_rate', '-s',
                         help="Share rate",
